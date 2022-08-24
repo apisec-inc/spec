@@ -1,0 +1,466 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "title": "API Opérateurs funéraires",
+      "description": "\n## Description\nCette API a pour but de présenter les données relatives aux opérateurs funéraires. \nCes données sont référencées et publiées généralement au sein des préfectures.",
+      "version": "1.0 béta",
+      "contact": {
+        "email": "contact-equipe-api@interieur.gouv.fr"
+      },
+      "license": {
+        "name": "libre"
+      }
+    },
+    "host": "api-rof-bd.herokuapp.com",
+    "basePath": "/api/v1/operateurs_funeraires/",
+    "schemes": [
+      "https",
+      "http"
+    ],
+    "produces": [
+      "application/json"
+    ],
+    "paths": {
+      "/search": {
+        "get": {
+          "operationId": "search",
+          "summary": "recherche des caractéristiques d'un ou plusieurs opérateurs funéraires.",
+          "tags": [
+            "opérateurs funéraires"
+          ],
+          "description": "une recherche globale selon la notation Google. Attention, il ne s'agit pas d'une recherche floue",
+          "parameters": [
+            {
+              "name": "q",
+              "required": true,
+              "in": "query",
+              "type": "string",
+              "description": "Saisir les caractéristiques d'un opérateur funéraire"
+            },
+            {
+              "name": "code_departement",
+              "in": "query",
+              "type": "string",
+              "description": "filtre sur le code département"
+            },
+            {
+              "name": "code_postal",
+              "in": "query",
+              "type": "string",
+              "description": "filtre sur le code postal"
+            },
+            {
+              "name": "sort",
+              "in": "query",
+              "type": "string",
+              "enum": [
+                "code_departement",
+                "code_postal",
+                "nom_commercial",
+                "raison_sociale",
+                "_id"
+              ],
+              "description": "> tri du résultat obtenu "
+            },
+            {
+              "name": "desc",
+              "in": "query",
+              "type": "string",
+              "enum": [
+                "code_departement",
+                "code_postal",
+                "nom_commercial",
+                "raisons_sociale",
+                "_id"
+              ],
+              "description": "> tri par odre décroissant"
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "description": "limite le nombre d'opérateurs funéraires retournés."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/operateurs_funeraires"
+              }
+            },
+            "400": {
+              "description": "format incorrect",
+              "schema": {
+                "$ref": "#/definitions/errorMessage"
+              }
+            },
+            "404": {
+              "description": "aucune donnée trouvée",
+              "schema": {
+                "$ref": "#/definitions/errorMessage"
+              }
+            },
+            "429": {
+              "description": "limite atteinte des appels par IP"
+            },
+            "500": {
+              "description": "erreur technique"
+            }
+          }
+        }
+      },
+      "/{id_operateur_funeraire}": {
+        "get": {
+          "operationId": "getById",
+          "summary": "selection d'un opérateur funéraire par identifiant technique",
+          "tags": [
+            "opérateurs funéraires"
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id_operateur_funeraire",
+              "type": "string",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/operateurs_funeraires"
+              }
+            },
+            "400": {
+              "description": "format incorrect",
+              "schema": {
+                "$ref": "#/definitions/errorMessage"
+              }
+            },
+            "404": {
+              "description": "aucun opérateur connu",
+              "schema": {
+                "$ref": "#/definitions/errorMessage"
+              }
+            },
+            "429": {
+              "description": "limite atteinte des appels par IP"
+            },
+            "500": {
+              "description": "erreur technique"
+            }
+          }
+        }
+      },
+      "/": {
+        "get": {
+          "operationId": "getByParams",
+          "summary": "selection d'opérateurs funéraires",
+          "tags": [
+            "opérateurs funéraires"
+          ],
+          "parameters": [
+            {
+              "name": "code_departement",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "code_postal",
+              "in": "query",
+              "type": "string"
+            },
+            {
+              "name": "prestations",
+              "in": "query",
+              "type": "string",
+              "enum": [
+                "Transport de corps avant et après mise en bière",
+                "Organisation des obsèques",
+                "Soins de conservation",
+                "Fourniture des housses, des cercueils et de leurs accessoires, des urnes cinéraires",
+                "Gestion et utilisation des chambres funéraires",
+                "Fourniture des corbillards et des voitures de deuils",
+                "Fourniture de personnel et des objets et prestations nécessaires aux obsèques",
+                "Gestion d'un crématorium"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/operateurs_funeraires"
+              }
+            },
+            "400": {
+              "description": "format incorrect",
+              "schema": {
+                "$ref": "#/definitions/errorMessage"
+              }
+            },
+            "404": {
+              "description": "aucun opérateur connu",
+              "schema": {
+                "$ref": "#/definitions/errorMessage"
+              }
+            },
+            "429": {
+              "description": "limite atteinte des appels par IP"
+            },
+            "500": {
+              "description": "erreur technique"
+            }
+          }
+        }
+      },
+      "/geo": {
+        "post": {
+          "operationId": "getOperateursByGeo",
+          "summary": "recherche par coordonnées géographiques **experimental**",
+          "tags": [
+            "opérateurs funéraires"
+          ],
+          "externalDocs": {
+            "url": "http://geojson.org/geojson-spec.html#geometry-objects"
+          },
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "coordonnées geographique au format geojson",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/postGeoMessage"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/operateurs_funeraires"
+              }
+            },
+            "400": {
+              "description": "format incorrect",
+              "schema": {
+                "$ref": "#/definitions/errorMessage"
+              }
+            },
+            "404": {
+              "description": "aucun opérateur connu",
+              "schema": {
+                "$ref": "#/definitions/errorMessage"
+              }
+            },
+            "429": {
+              "description": "limite atteinte des appels par IP"
+            },
+            "500": {
+              "description": "erreur technique"
+            }
+          }
+        }
+      },
+      "/healthcheck": {
+        "get": {
+          "operationId": "getHealthCheck",
+          "summary": "état de l'api",
+          "tags": [
+            "opérateurs funéraires"
+          ],
+          "responses": {
+            "200": {
+              "description": "état de l'api",
+              "schema": {
+                "$ref": "#definitions/healthcheckMessage"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "operateurs_funeraires": {
+        "type": "object",
+        "properties": {
+          "operateurs_funeraires": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "_id": {
+                  "type": "string",
+                  "description": "identifiant technique"
+                },
+                "raison_sociale": {
+                  "type": "string",
+                  "description": "raison sociale"
+                },
+                "nom_commercial": {
+                  "type": "string",
+                  "description": "nom commercial de l'opérateur funéraire"
+                },
+                "numero_siren": {
+                  "type": "string",
+                  "description": "numéro de siren"
+                },
+                "forme_juridique": {
+                  "type": "string"
+                },
+                "activites": {
+                  "type": "string",
+                  "description": "les activités des opérateurs funéraires"
+                },
+                "prestations": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "libelle": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "prestations_sous_traitees": {
+                  "type": "string",
+                  "description": "prestations sous traitees"
+                },
+                "courriel": {
+                  "type": "string"
+                },
+                "telephone": {
+                  "type": "string"
+                },
+                "telephone_mobile": {
+                  "type": "string"
+                },
+                "adresse": {
+                  "type": "object",
+                  "properties": {
+                    "libelle": {
+                      "type": "string"
+                    },
+                    "complement": {
+                      "type": "string",
+                      "description": ""
+                    },
+                    "code_postal": {
+                      "type": "string",
+                      "description": "code postal de la commune"
+                    },
+                    "code_departement": {
+                      "type": "string",
+                      "description": "code code_departement"
+                    },
+                    "ville": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "etranger": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "hits": {
+            "type": "integer"
+          }
+        }
+      },
+      "healthcheckMessage": {
+        "type": "object",
+        "properties": {
+          "etat": {
+            "type": "string"
+          },
+          "base": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          }
+        }
+      },
+      "postGeoMessage": {
+        "type": "object",
+        "properties": {
+          "features": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "default": "Feature"
+                },
+                "geometry": {
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "default": "Point"
+                    },
+                    "coordinates": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "max_distance": {
+            "type": "number",
+            "description": "distance en kms",
+            "enum": [
+              10,
+              15,
+              20,
+              25,
+              30
+            ]
+          },
+          "limit": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 300,
+            "default": 10,
+            "description": "limite du nombre d'adresses retourné"
+          }
+        }
+      },
+      "errorMessage": {
+        "type": "object",
+        "properties": {
+          "erreur": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "integer",
+                "description": "Code de l'erreur"
+              },
+              "message": {
+                "type": "string",
+                "description": "Libellé de l'erreur"
+              }
+            }
+          }
+        }
+      }
+    }
+}
